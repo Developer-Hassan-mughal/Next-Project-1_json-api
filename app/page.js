@@ -1,95 +1,92 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
 
-export default function Home() {
+import Show from '@/components/Show.js'
+import axios from '@/utils/axios.js'
+import React, {useState, useEffect, Suspense} from 'react'
+import "bootstrap/dist/css/bootstrap.min.css"
+import Link from 'next/link'
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+const page = () => {
+
+  const [post, setpost] = useState([])
+  const [show, setshow] = useState(false)
+  // const [page, setpage] = useState(1)
+  const [haseMore, sethaseMore] = useState(true)
+
+  const getPost = async ()=>{
+    try{
+      const {data} = await axios.get(`/posts?_limit=10&_start=${post.length}`)
+      setpost([...post,...data])
+      console.log(data)
+      if (data.length === 0)sethaseMore(false)
+    }catch{
+      console.log('error')
+    }
+  }
+
+  console.log(post)
+
+  // if(page === 0){
+  //   alert("You Are Already On Top")
+  //   setpage(1)
+  // }
+  // if(page === 11){
+  //   alert("No More Post To Show")
+  //   setpage(10)
+  // }
+
+
+
+  useEffect(() => {
+    console.log("API called")
+    getPost()
+  }, [page])
+  
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <div className='container p-4'>
+      {/* <button className='btn btn-primary fs-4 px-4 mt-3' onClick={()=> setshow(!show)}>
+        {!show ? "Show" : "Hide"}
+      </button> */}
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      {/* {show ? <Show /> : ""} */}
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+      <hr />
+      <h1 className='bg-primary p-2 text-light'>Posts</h1>
+      <hr />
+      {/* <button className='btn btn-primary fs-4 px-4 mt-3' onClick={getPost}>See Posts</button> */}
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+      <ul className="list-group gap-2 fs-5 mt-3">
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
+      <InfiniteScroll
+        dataLength={post.length}
+        next={getPost}
+        hasMore={haseMore}
+        loader={ <div style={{width : '100%', display: 'flex', justifyContent:'center'}}>
+          <img src='https://media.tenor.com/JOkzmgju2T0AAAAM/ruko-zra-sabke-kro-hindustani-bhau-dhka-muki-nhi-krne-ka-hindustani-bhau.gif'></img>
+          </div>
+        }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        endMessage={ <div style={{width : '100%', display: 'flex', justifyContent:'center'}}>
+          <img src='https://media.tenor.com/XRaqIsw6SgcAAAAC/rahul-gandhi-khatam.gif'></img>
+          </div>
+        }
+      >
+
+        {post.length > 0 && post.map((p)=>(
+
+              <li className="p-4 list-group-item bg-warning-subtle d-flex justify-content-between text-start" key={p.id}>{p.id} : {p.title} <Link href={`/${p.id}`} className='fs-6'>know more</Link></li>
+
+              ))}
+
+      </InfiniteScroll>
+
+      </ul>
+      {/* <button onClick={()=> setpage(page-1)} className='btn btn-secondary me-3 mt-4'>prev</button>
+      <button onClick={()=>setpage(page+1)} className='btn btn-primary mt-4'>next</button> */}
+    </div>
   )
 }
+
+export default page
